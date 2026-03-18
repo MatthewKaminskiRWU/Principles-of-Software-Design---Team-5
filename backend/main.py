@@ -1,11 +1,14 @@
 import os
 from typing import Annotated
+from enum import Enum
+from datetime import datetime
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
+# cors is a pain in the ass so im just gonna allow everything for now
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # tighten this down later for production
@@ -14,11 +17,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-load_dotenv()
+load_dotenv() # this loads the .env variables
+
+############ Understanding SQLModel Syntax ##############
+
+"""
+CORE CONCEPTS:
+- table=True      : this means it represents a real DB table
+- table=False     : when we dont have that table=True, we are just making a "model" using the pydantic package. A model is simply a class that allows us to define data schemas 
+- Field(default=None) : tells Python "don't send a value," letting the DB use its DEFAULT
+Think of Field(...) as the database settings for a certain variable.
+
+COMMON FIELD TYPES:
+- primary_key=True  : Marks PK. For ints, this enables AUTO_INCREMENT automatically
+- foreign_key="t.c" : Links to 'table_name.column_name'
+- index=True        : Adds a DB index for faster lookups 
+- unique=True       : Enforces a UNIQUE constraint in the DB
+- sa_column_kwargs  : Only use this if Python name != DB column name
+                      Example: sa_column_kwargs={"name": "real_db_name"}
+"""
 
 #--- Models ---
 
-class UserBase(SQLModel):
+#___ Users___ 
+class UserBase(SQLModel): #I define this here because we will need it in the other classes below. 
     name: str
     email: str | None = None
 
@@ -26,21 +48,41 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     __tablename__ = "users"
     id: int | None = Field(default=None, primary_key=True)
-    event_id: int = Field(foreign_key="events.id", sa_column_kwargs={"name": "eventId"})
+    eventId: int = Field(foreign_key="events.id")
 
 class UserPublic(UserBase):
     id: int
-    event_id: int
+    eventId: int
 
 class UserCreate(UserBase):
-    event_id: int
+    eventId: int
 
+#___ Events___
 class Event(SQLModel, table=True):
     __tablename__ = "events"
     id: int | None = Field(default=None, primary_key=True)
-    hash: str
-    class_title: str = Field(sa_column_kwargs={"name": "classTitle"})
-    professor: str
+    hash: str = Field(unique=True, index=True)
+    classTitle: str | None = None
+    professor: str | None = None
+    dateCreated: datetime | None = Field(default=None)
+
+#___ availability___
+
+class AvailabilityStatus(str, Enum):
+    AVAILABLE = "available"
+    PREFERRED = "preferred"
+    UNAVAILABLE = "unavailable"
+
+class Availability(SQLModel, table=True):
+    __tablename__ = "availability"
+    userId: int = Field(default=None, primary_key=True)
+    slotId: int = Field(default=None, primary_key=True)
+    status: AvailabilityStatus
+
+
+#--- DB Setup ---
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
 
 def get_session():
     with Session(engine) as session:
@@ -53,9 +95,6 @@ SessionDep = Annotated[Session, Depends(get_session)]
 def read_root():
     return {"Hello": "World"}
 
-#--- DB Setup ---
-DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
 
 
 # --- User Endpoints ---
