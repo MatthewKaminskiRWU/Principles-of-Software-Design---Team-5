@@ -1,7 +1,7 @@
 import os
 from typing import Annotated
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, time
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from sqlmodel import Field, Session, SQLModel, create_engine, select
@@ -66,7 +66,7 @@ class Event(SQLModel, table=True):
     professor: str | None = None
     dateCreated: datetime | None = Field(default=None)
 
-#___ availability___
+#___availability___
 
 class AvailabilityStatus(str, Enum):
     AVAILABLE = "available"
@@ -75,10 +75,39 @@ class AvailabilityStatus(str, Enum):
 
 class Availability(SQLModel, table=True):
     __tablename__ = "availability"
-    userId: int = Field(default=None, primary_key=True)
-    slotId: int = Field(default=None, primary_key=True)
+    userId: int = Field(primary_key=True, foreign_key="users.id")
+    slotId: int = Field(primary_key=True, foreign_key="timeSlots.id")
     status: AvailabilityStatus
 
+#___eventSlots___
+
+class EventSlots(SQLModel, table=True):
+    __tablename__ = "eventSlots"
+    eventId: int = Field(primary_key=True, foreign_key="events.id")
+    slotId: int = Field(primary_key=True, foreign_key="timeSlots.id")
+
+#___timeSlots___
+class DaysOfWeek(str, Enum):
+    MONDAY = "Monday"
+    TUESDAY = "Tuesday"
+    WEDNESDAY = "Wednesday"
+    THURSDAY = "Thursday"
+    FRIDAY = "Friday"
+    SATURDAY = "Saturday" # lol why do these even exist
+    SUNDAY = "Sunday"
+
+class SlotTypes(str, Enum):
+    MIN_50 = "50_min"
+    MIN_80 = "80_min"
+    MIN_170 = "170_min"
+
+class TimeSlots(SQLModel, table=True):
+    __tablename__ = "timeSlots"
+    id: int | None = Field(default=None, primary_key=True)
+    dayOfWeek: DaysOfWeek
+    startTime: time
+    endTime: time
+    slotType: SlotTypes
 
 #--- DB Setup ---
 DATABASE_URL = os.getenv("DATABASE_URL")

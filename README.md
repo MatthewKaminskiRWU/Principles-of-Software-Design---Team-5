@@ -10,14 +10,14 @@
     
 **Backend**
 
-- [ ] Get boilderplate for backend using FastAPI (Mike will do this)
-- [ ] Create MariaDB database to store classes
+- [x] Get boilderplate for backend using FastAPI (Mike will do this)
+- [x] Create MariaDB database to store classes
     - seed.sql (generate dummy data)
     - create .env variables
     - schema.sql
-- [ ] Create docker compose to create database with dummy data
+- [x] Create docker compose to create database with dummy data
     - allow teammates to spin up their own database
-- [ ] Connect database to FastAPI
+- [x] Connect database to FastAPI
 - [ ] Create GET /courses and POST /courses endpoints
 - [ ] Prevent CORS errors (good luck 😬)
 <details>
