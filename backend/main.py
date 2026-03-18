@@ -2,6 +2,7 @@ import os
 from typing import Annotated
 from enum import Enum
 from datetime import datetime, time
+from secrets import token_hex
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from sqlmodel import Field, Session, SQLModel, create_engine, select
@@ -58,13 +59,23 @@ class UserCreate(UserBase):
     eventId: int
 
 #___ Events___
-class Event(SQLModel, table=True):
+
+class EventBase(SQLModel): # shared data
+    classTitle: str | None = None
+    professor: str | None = None
+
+class Event(EventBase, table=True): # this is a table model
     __tablename__ = "events"
     id: int | None = Field(default=None, primary_key=True)
     hash: str = Field(unique=True, index=True)
-    classTitle: str | None = None
-    professor: str | None = None
-    dateCreated: datetime | None = Field(default=None)
+    dateCreated: datetime = Field(default_factory=datetime.now) # default_factory allows a callable function (in this case we get most recent time)
+
+class EventPublic(EventBase): # what we are sending back
+    id: int
+    hash: str
+
+class EventCreate(EventBase): # this accepts what the professor submits
+    slotIds: list[int]
 
 #___availability___
 
@@ -145,3 +156,20 @@ def read_user(user_id: int, session: SessionDep):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+# --- Event Endpoints ---
+@app.post("/events/", response_model=EventPublic)
+def create_event(event: EventCreate, session: SessionDep): # so event: EventCreate takes in the data the professor sends in (defined earlier). session is DB connection
+    generatedHash = token_hex(16)
+#  creating an instance of Event and passing in the values below. 
+    dbEvent = Event(classTitle = event.classTitle, professor = event.professor, hash = generatedHash)
+    session.add(dbEvent)
+    session.commit() # this writes it to the database
+    session.refresh(dbEvent)
+
+    for slotId in event.slotIds:
+        dbEventSlot = EventSlots(eventId=dbEvent.id, slotId=slotId)
+        session.add(dbEventSlot)
+    session.commit()
+
+    return dbEvent
