@@ -1,12 +1,15 @@
 import os
-from typing import Annotated
-from enum import Enum
 from datetime import datetime, time
+from enum import Enum
 from secrets import token_hex
+from typing import Annotated
+
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
-from sqlmodel import Field, Session, SQLModel, create_engine, select
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+
+
 app = FastAPI()
 
 # cors is a pain in the ass so im just gonna allow everything for now
@@ -18,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-load_dotenv() # this loads the .env variables
+load_dotenv()  # this loads the .env variables
 
 ############ Understanding SQLModel Syntax ##############
 
@@ -38,12 +41,16 @@ COMMON FIELD TYPES:
                       Example: sa_column_kwargs={"name": "real_db_name"}
 """
 
-#--- Models ---
+# --- Models ---
 
-#___ Users___ 
-class UserBase(SQLModel): #I define this here because we will need it in the other classes below. 
+
+# ___ Users___
+class UserBase(
+    SQLModel
+):  # I define this here because we will need it in the other classes below.
     name: str
     email: str | None = None
+
 
 # this is what is stored in the DB
 class User(UserBase, table=True):
@@ -51,38 +58,56 @@ class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     eventId: int = Field(foreign_key="events.id")
 
+
 class UserPublic(UserBase):
     id: int
     eventId: int
 
+
 class UserCreate(UserBase):
     eventId: int
 
-#___ Events___
 
-class EventBase(SQLModel): # shared data
+# ___ Events___
+
+
+class EventBase(SQLModel):  # shared data
     classTitle: str | None = None
     professor: str | None = None
 
-class Event(EventBase, table=True): # this is a table model
+
+class Event(EventBase, table=True):  # this is a table model
     __tablename__ = "events"
     id: int | None = Field(default=None, primary_key=True)
     hash: str = Field(unique=True, index=True)
-    dateCreated: datetime = Field(default_factory=datetime.now) # default_factory allows a callable function (in this case we get most recent time)
+    dateCreated: datetime = Field(
+        default_factory=datetime.now
+    )  # default_factory allows a callable function (in this case we get most recent time)
 
-class EventPublic(EventBase): # what we are sending back
+
+class EventPublic(EventBase):  # what we are sending back
     id: int
     hash: str
 
-class EventCreate(EventBase): # this accepts what the professor submits
+
+class EventCreate(EventBase):  # this accepts what the professor submits
     slotIds: list[int]
 
-#___availability___
+
+class EventWithSlots(EventBase):
+    id: int
+    hash: str
+    slotIds: list[int]
+
+
+# ___availability___
+
 
 class AvailabilityStatus(str, Enum):
     AVAILABLE = "available"
     PREFERRED = "preferred"
     UNAVAILABLE = "unavailable"
+
 
 class Availability(SQLModel, table=True):
     __tablename__ = "availability"
@@ -90,27 +115,32 @@ class Availability(SQLModel, table=True):
     slotId: int = Field(primary_key=True, foreign_key="timeSlots.id")
     status: AvailabilityStatus
 
-#___eventSlots___
+
+# ___eventSlots___
+
 
 class EventSlots(SQLModel, table=True):
     __tablename__ = "eventSlots"
     eventId: int = Field(primary_key=True, foreign_key="events.id")
     slotId: int = Field(primary_key=True, foreign_key="timeSlots.id")
 
-#___timeSlots___
+
+# ___timeSlots___
 class DaysOfWeek(str, Enum):
     MONDAY = "Monday"
     TUESDAY = "Tuesday"
     WEDNESDAY = "Wednesday"
     THURSDAY = "Thursday"
     FRIDAY = "Friday"
-    SATURDAY = "Saturday" # lol why do these even exist
+    SATURDAY = "Saturday"  # lol why do these even exist
     SUNDAY = "Sunday"
+
 
 class SlotTypes(str, Enum):
     MIN_50 = "50_min"
     MIN_80 = "80_min"
     MIN_170 = "170_min"
+
 
 class TimeSlots(SQLModel, table=True):
     __tablename__ = "timeSlots"
@@ -120,13 +150,16 @@ class TimeSlots(SQLModel, table=True):
     endTime: time
     slotType: SlotTypes
 
-#--- DB Setup ---
+
+# --- DB Setup ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
+
 
 def get_session():
     with Session(engine) as session:
         yield session
+
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -136,9 +169,10 @@ def read_root():
     return {"Hello": "World"}
 
 
-
 # --- User Endpoints ---
-@app.post("/users/", response_model=UserPublic)
+@app.post(
+    "/users/", response_model=UserPublic
+)  # the response_model tells FastAPI what to return. remember we defined UserPublic earlier
 def create_user(user: UserCreate, session: SessionDep):
     db_user = User.model_validate(user)
     session.add(db_user)
@@ -146,9 +180,11 @@ def create_user(user: UserCreate, session: SessionDep):
     session.refresh(db_user)
     return db_user
 
+
 @app.get("/users/", response_model=list[UserPublic])
 def read_users(session: SessionDep):
     return session.exec(select(User)).all()
+
 
 @app.get("/users/{user_id}", response_model=UserPublic)
 def read_user(user_id: int, session: SessionDep):
@@ -157,14 +193,19 @@ def read_user(user_id: int, session: SessionDep):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+
 # --- Event Endpoints ---
 @app.post("/events/", response_model=EventPublic)
-def create_event(event: EventCreate, session: SessionDep): # so event: EventCreate takes in the data the professor sends in (defined earlier). session is DB connection
+def create_event(
+    event: EventCreate, session: SessionDep
+):  # so event: EventCreate takes in the data the professor sends in (defined earlier). session is DB connection
     generatedHash = token_hex(16)
-#  creating an instance of Event and passing in the values below. 
-    dbEvent = Event(classTitle = event.classTitle, professor = event.professor, hash = generatedHash)
+    #  creating an instance of Event and passing in the values below.
+    dbEvent = Event(
+        classTitle=event.classTitle, professor=event.professor, hash=generatedHash
+    )
     session.add(dbEvent)
-    session.commit() # this writes it to the database
+    session.commit()  # this writes it to the database
     session.refresh(dbEvent)
 
     for slotId in event.slotIds:
@@ -173,3 +214,30 @@ def create_event(event: EventCreate, session: SessionDep): # so event: EventCrea
     session.commit()
 
     return dbEvent
+
+
+# this endpoint returns the json for a specific event based on the hash
+@app.get(
+    "/events/{hash}", response_model=EventWithSlots
+)  # fastAPI will see {hash} and match it to the hash: str below
+def get_event_by_hash(hash: str, session: SessionDep):
+    # get event
+    event = session.exec(
+        select(Event).where(Event.hash == hash)
+    ).first()  # gets the event by hash.
+    # .first() selects the first result (there should not be duplicates anyway)
+    if not event:  # throw error if we cant find an event with that hash
+        raise HTTPException(
+            status_code=404,
+            detail=f"We were unable to retrieve event with a hash of {hash}",
+        )
+    slots = session.exec(select(EventSlots).where(EventSlots.eventId == event.id)).all()
+    slotIds = [slot.slotId for slot in slots]  # this gets just the slotId for each row
+
+    return EventWithSlots(
+        id=event.id,
+        hash=event.hash,
+        classTitle=event.classTitle,
+        professor=event.professor,
+        slotIds=slotIds,
+    )
