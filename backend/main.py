@@ -115,6 +115,14 @@ class Availability(SQLModel, table=True):
     slotId: int = Field(primary_key=True, foreign_key="timeSlots.id")
     status: AvailabilityStatus
 
+class AvailabilityItem(SQLModel): # combine the slotId with the enum we defined a few lines earlier
+    slotId: int
+    status: AvailabilityStatus
+
+class AvailabilitySubmission(SQLModel): # this is the full submission
+    eventHash: str
+    user: UserBase
+    availability: list[AvailabilityItem]
 
 # ___eventSlots___
 
@@ -241,3 +249,21 @@ def get_event_by_hash(hash: str, session: SessionDep):
         professor=event.professor,
         slotIds=slotIds,
     )
+
+# --- Availability Endpoints ---
+
+@app.post("/availability")
+def submit_availability(submission: AvailabilitySubmission, session: sessionDep):
+
+    # get event (we can re-use logic from GET endpoint). this time however grab the hash from the request body
+    event = session.exec(select(Event).where(Event.hash == submission.eventHash)).first()
+
+    dbUser = User(
+        eventId=event.id,
+        name=submission.user.name,
+        email=submission.user.email
+   )
+
+   session.add(dbUser)
+   session.commit()
+   session.refresh(dbUser)
