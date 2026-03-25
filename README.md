@@ -18,7 +18,17 @@
 - [x] Create docker compose to create database with dummy data
     - allow teammates to spin up their own database
 - [x] Connect database to FastAPI
-- [ ] Create GET /courses and POST /courses endpoints
+
+**Endpoints**
+
+- [x] GET / boilerplate
+- [x] GET /users/ -- get all the registered users
+- [x] GET /users/{user_id} -- get one specific user
+- [x] POST /users/ -- create a new user
+- [x] POST /events/ -- create an event & link time slots
+- [x] GET /events/{hash} -- get event & slot IDs by hash
+- [x] POST /availability/ -- submit student availability
+- [ ] GET /events/{hash}/results -- display who is available when (for the teacher)
 - [ ] Prevent CORS errors (good luck 😬)
 <details>
   <summary>Database Schema</summary>
