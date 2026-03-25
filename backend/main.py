@@ -9,7 +9,6 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
-
 app = FastAPI()
 
 # cors is a pain in the ass so im just gonna allow everything for now
@@ -114,6 +113,19 @@ class Availability(SQLModel, table=True):
     userId: int = Field(primary_key=True, foreign_key="users.id")
     slotId: int = Field(primary_key=True, foreign_key="timeSlots.id")
     status: AvailabilityStatus
+
+
+class AvailabilityItem(
+    SQLModel
+):  # combine the slotId with the enum we defined a few lines earlier
+    slotId: int
+    status: AvailabilityStatus
+
+
+class AvailabilitySubmission(SQLModel):  # this is the full submission
+    eventHash: str
+    user: UserBase
+    availability: list[AvailabilityItem]
 
 
 # ___eventSlots___
@@ -241,3 +253,33 @@ def get_event_by_hash(hash: str, session: SessionDep):
         professor=event.professor,
         slotIds=slotIds,
     )
+
+
+# --- Availability Endpoints ---
+
+
+@app.post("/availability")
+def submit_availability(submission: AvailabilitySubmission, session: SessionDep):
+
+    # get event (we can re-use logic from GET endpoint). this time however grab the hash from the request body
+    event = session.exec(
+        select(Event).where(Event.hash == submission.eventHash)
+    ).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found!")
+
+    dbUser = User(
+        eventId=event.id, name=submission.user.name, email=submission.user.email
+    )
+
+    session.add(dbUser)
+    session.commit()
+    session.refresh(dbUser)
+
+    for item in submission.availability:
+        dbAvailability = Availability(
+            userId=dbUser.id, slotId=item.slotId, status=item.status
+        )
+        session.add(dbAvailability)
+    session.commit()
+    return {"message": "Availability submitted successfully"}
