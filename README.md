@@ -28,7 +28,7 @@
 - [x] POST /events/ -- create an event & link time slots
 - [x] GET /events/{hash} -- get event & slot IDs by hash
 - [x] POST /availability/ -- submit student availability
-- [ ] GET /events/{hash}/results -- display who is available when (for the teacher)
+- [x] GET /events/{hash}/results -- display who is available when (for the teacher)
 - [ ] Prevent CORS errors (good luck 😬)
 <details>
   <summary>Database Schema</summary>

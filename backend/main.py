@@ -7,6 +7,7 @@ from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import func
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 app = FastAPI()
@@ -103,9 +104,9 @@ class EventWithSlots(EventBase):
 
 
 class AvailabilityStatus(str, Enum):
-    AVAILABLE = "available"
-    PREFERRED = "preferred"
-    UNAVAILABLE = "unavailable"
+    available = "available"
+    preferred = "preferred"
+    unavailable = "unavailable"
 
 
 class Availability(SQLModel, table=True):
@@ -139,19 +140,19 @@ class EventSlots(SQLModel, table=True):
 
 # ___timeSlots___
 class DaysOfWeek(str, Enum):
-    MONDAY = "Monday"
-    TUESDAY = "Tuesday"
-    WEDNESDAY = "Wednesday"
-    THURSDAY = "Thursday"
-    FRIDAY = "Friday"
-    SATURDAY = "Saturday"  # lol why do these even exist
-    SUNDAY = "Sunday"
+    Monday = "Monday"
+    Tuesday = "Tuesday"
+    Wednesday = "Wednesday"
+    Thursday = "Thursday"
+    Friday = "Friday"
+    Saturday = "Saturday"  # lol why do these even exist
+    Sunday = "Sunday"
 
 
 class SlotTypes(str, Enum):
-    MIN_50 = "50_min"
-    MIN_80 = "80_min"
-    MIN_170 = "170_min"
+    min_50 = "min_50"
+    min_80 = "min_80"
+    min_170 = "min_170"
 
 
 class TimeSlots(SQLModel, table=True):
@@ -160,7 +161,22 @@ class TimeSlots(SQLModel, table=True):
     dayOfWeek: DaysOfWeek
     startTime: time
     endTime: time
-    slotType: SlotTypes
+    # slotType: SlotTypes
+    slotType: str
+
+
+# ___ResultSlots___
+# this is the model for the result that the teacher gets shown
+
+
+class ResultSlots(SQLModel):
+    slotId: int
+    dayOfWeek: DaysOfWeek
+    startTime: time
+    endTime: time
+    available: int
+    preferred: int
+    unavailable: int
 
 
 # --- DB Setup ---
@@ -283,3 +299,65 @@ def submit_availability(submission: AvailabilitySubmission, session: SessionDep)
         session.add(dbAvailability)
     session.commit()
     return {"message": "Availability submitted successfully"}
+
+
+# --- Results Endpoints ---
+
+
+@app.get("/events/{hash}/results", response_model=list[ResultSlots])
+def get_results(hash: str, session: SessionDep):
+    event = session.exec(select(Event).where(Event.hash == hash)).first()
+    if not event:  # throw error if we cant find an event with that hash
+        raise HTTPException(
+            status_code=404,
+            detail=f"We were unable to retrieve results for event with a hash: {hash}",
+        )
+
+    slots = session.exec(select(EventSlots).where(EventSlots.eventId == event.id)).all()
+    slotIds = [slot.slotId for slot in slots]  # this gets just the slotId for each row
+    results = []  # blank array to store the results
+    for slotId in slotIds:  # this gets the time slot details
+        timeSlot = session.get(TimeSlots, slotId)
+        availabilityRows = session.exec(
+            select(Availability).where(Availability.slotId == slotId)
+        ).all()
+
+        # decided to opt for using the func method from sqlalchemy which allows us to call SQL functions.
+        #     calling func.count() is the equivalant to doing an actual query:
+        #     SELECT COUNT(*) FROM availability WHERE slotId = 1 AND status = 'available'
+
+        # get available
+        available = session.exec(
+            select(func.count()).where(
+                Availability.slotId == slotId,
+                Availability.status == AvailabilityStatus.available,
+            )
+        ).one()
+        # get preferred
+        preferred = session.exec(
+            select(func.count()).where(
+                Availability.slotId == slotId,
+                Availability.status == AvailabilityStatus.preferred,
+            )
+        ).one()
+        # get unavailable (im not even sure right now our frontend produces any unavailable, and im not sure that it should.
+        # nonetheless this could prove important???)
+        unavailable = session.exec(
+            select(func.count()).where(
+                Availability.slotId == slotId,
+                Availability.status == AvailabilityStatus.unavailable,
+            )
+        ).one()
+
+        results.append(
+            ResultSlots(
+                slotId=slotId,
+                dayOfWeek=timeSlot.dayOfWeek,
+                startTime=timeSlot.startTime,
+                endTime=timeSlot.endTime,
+                available=available,
+                preferred=preferred,
+                unavailable=unavailable,
+            )
+        )
+    return results
