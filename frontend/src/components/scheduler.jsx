@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 
-export default function CourseScheduler({hash, slotIds}) { //slotIds is coming in as a prop from the $hash.jsx file. It is a list [1, 2, 4, 42] of the slotIds that are actually selected by a teacher for a given class
+export default function CourseScheduler({ hash, slotIds }) {
+  //slotIds is coming in as a prop from the $hash.jsx file. It is a list [1, 2, 4, 42] of the slotIds that are actually selected by a teacher for a given class
   const [selectedSlots, setSelectedSlots] = useState(new Set());
   const [isDragging, setIsDragging] = useState(false);
   const [dragMode, setDragMode] = useState(null);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
-
-
-
 
   // I took these slot definitions directly from the image ruocco provided, however there are
   // missing class blocks by the look of it
@@ -116,27 +114,48 @@ export default function CourseScheduler({hash, slotIds}) { //slotIds is coming i
     return () => window.removeEventListener("mouseup", handleMouseUp);
   }, []);
 
-  const generateJSON = () => {
+  const getSubmissionData = () => {
     const availability = Array.from(selectedSlots).map((slotId) => ({
       slotId: slotId,
       status: "available",
     }));
 
-    // this is based on the JSON schema we defined earlier. 
-    return JSON.stringify(
-      {
-        version: "1.0",
-        eventHash: hash || "abc123xyz",
-        user: {
-          name: userName || "Student Name",
-          email: userEmail || "student@email.edu",
-        },
-        availability: availability,
-        submittedAt: new Date().toISOString(),
+    return {
+      version: "1.0",
+      eventHash: hash,
+      user: {
+        name: userName,
+        email: userEmail,
       },
-      null,
-      2,
-    );
+      availability: availability,
+      submittedAt: new Date().toISOString(),
+    };
+  };
+
+  const generateJSON = () => {
+    return JSON.stringify(getSubmissionData(), null, 2);
+  };
+
+  const postJSON = async (data) => {
+    const response = await fetch("http://localhost:8000/availability", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await postJSON(getSubmissionData());
+      alert("Availability submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting availability:", error);
+      alert("Failed to submit availability. Please try again.");
+    }
   };
 
   const downloadJSON = () => {
@@ -205,6 +224,13 @@ export default function CourseScheduler({hash, slotIds}) { //slotIds is coming i
               Download JSON
             </button>
             <button
+              onClick={handleSubmit}
+              disabled={selectedSlots.size === 0}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              Submit
+            </button>
+            <button
               onClick={clearAll}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
             >
@@ -241,8 +267,10 @@ export default function CourseScheduler({hash, slotIds}) { //slotIds is coming i
                 {gridRows.map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     {row.slots.map((slotId, dayIndex) => {
-                      const isAvailable = slotId && (!slotIds || slotIds.includes(slotId)); //here is where we actually render based on if the teacher has chosen a slotId as being available
-                      const isSelected = isAvailable && selectedSlots.has(slotId);          // if slotIds is empty than just show all of them
+                      const isAvailable =
+                        slotId && (!slotIds || slotIds.includes(slotId)); //here is where we actually render based on if the teacher has chosen a slotId as being available
+                      const isSelected =
+                        isAvailable && selectedSlots.has(slotId); // if slotIds is empty than just show all of them
                       const timeLabel = slotId ? getSlotTime(slotId) : "";
 
                       return (
@@ -296,8 +324,10 @@ export default function CourseScheduler({hash, slotIds}) { //slotIds is coming i
                 {eveningRows.map((row, rowIndex) => (
                   <tr key={`evening-${rowIndex}`}>
                     {row.slots.map((slotId, dayIndex) => {
-                      const isAvailable = slotId && (!slotIds || slotIds.includes(slotId));
-                      const isSelected = isAvailable && selectedSlots.has(slotId);
+                      const isAvailable =
+                        slotId && (!slotIds || slotIds.includes(slotId));
+                      const isSelected =
+                        isAvailable && selectedSlots.has(slotId);
 
                       return (
                         <td
@@ -323,7 +353,9 @@ export default function CourseScheduler({hash, slotIds}) { //slotIds is coming i
                               onMouseEnter={() => handleMouseEnter(slotId)}
                             >
                               <span className="text-lg font-bold">
-                                {slotId > 100 ? Math.floor(slotId / 10) : slotId}
+                                {slotId > 100
+                                  ? Math.floor(slotId / 10)
+                                  : slotId}
                               </span>
                               <span className="text-xs mt-1">{row.label}</span>
                             </div>
@@ -343,7 +375,6 @@ export default function CourseScheduler({hash, slotIds}) { //slotIds is coming i
         {/* Instructions */}
         {/* We will probably want to
          include some sort of instructions here*/}
- 
 
         {/* JSON Preview */}
         {selectedSlots.size > 0 && (
