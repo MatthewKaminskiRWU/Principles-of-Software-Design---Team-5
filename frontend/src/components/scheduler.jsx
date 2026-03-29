@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 
-export default function CourseScheduler() {
+export default function CourseScheduler({hash, slotIds}) { //slotIds is coming in as a prop from the $hash.jsx file. It is a list [1, 2, 4, 42] of the slotIds that are actually selected by a teacher for a given class
   const [selectedSlots, setSelectedSlots] = useState(new Set());
   const [isDragging, setIsDragging] = useState(false);
   const [dragMode, setDragMode] = useState(null);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
+
+
+
 
   // I took these slot definitions directly from the image ruocco provided, however there are
   // missing class blocks by the look of it
@@ -28,13 +31,13 @@ export default function CourseScheduler() {
     26: { time: "3:30-4:50", days: ["tuesday", "friday"] },
     27: { time: "5:00-6:20", days: ["tuesday", "friday"] },
     12: { time: "6:30-9:30-BR1", days: ["monday"], evening: true },
-    "12-pvd": { time: "6:30-9:30-PVD", days: ["monday"], evening: true },
+    120: { time: "6:30-9:30-PVD", days: ["monday"], evening: true },
     13: { time: "6:30-9:30-BR1", days: ["tuesday"], evening: true },
-    "13-pvd": { time: "6:30-9:30-PVD", days: ["tuesday"], evening: true },
+    130: { time: "6:30-9:30-PVD", days: ["tuesday"], evening: true },
     14: { time: "6:30-9:30-BR1", days: ["wednesday"], evening: true },
-    "14-pvd": { time: "6:30-9:30-PVD", days: ["wednesday"], evening: true },
+    140: { time: "6:30-9:30-PVD", days: ["wednesday"], evening: true },
     15: { time: "6:30-9:30-BR1", days: ["thursday"], evening: true },
-    "15-pvd": { time: "6:30-9:30-PVD", days: ["thursday"], evening: true },
+    150: { time: "6:30-9:30-PVD", days: ["thursday"], evening: true },
   };
 
   // this builds the table based on when the classes meet
@@ -67,7 +70,7 @@ export default function CourseScheduler() {
     { label: "6:30-9:30-BRI", slots: [12, 13, 14, 15, null] },
     {
       label: "6:30-9:30-PVD",
-      slots: ["12-pvd", "13-pvd", "14-pvd", "15-pvd", null],
+      slots: [120, 130, 140, 150, null],
     },
   ];
 
@@ -115,10 +118,7 @@ export default function CourseScheduler() {
 
   const generateJSON = () => {
     const availability = Array.from(selectedSlots).map((slotId) => ({
-      slotId:
-        typeof slotId === "string" && slotId.includes("-")
-          ? parseInt(slotId.split("-")[0])
-          : slotId,
+      slotId: slotId,
       status: "available",
     }));
 
@@ -126,7 +126,7 @@ export default function CourseScheduler() {
     return JSON.stringify(
       {
         version: "1.0",
-        eventHash: "abc123xyz",
+        eventHash: hash || "abc123xyz",
         user: {
           name: userName || "Student Name",
           email: userEmail || "student@email.edu",
@@ -241,7 +241,8 @@ export default function CourseScheduler() {
                 {gridRows.map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     {row.slots.map((slotId, dayIndex) => {
-                      const isSelected = slotId && selectedSlots.has(slotId);
+                      const isAvailable = slotId && (!slotIds || slotIds.includes(slotId)); //here is where we actually render based on if the teacher has chosen a slotId as being available
+                      const isSelected = isAvailable && selectedSlots.has(slotId);          // if slotIds is empty than just show all of them
                       const timeLabel = slotId ? getSlotTime(slotId) : "";
 
                       return (
@@ -250,7 +251,7 @@ export default function CourseScheduler() {
                           className="border-2 border-black p-0 relative"
                           style={{ height: "80px" }}
                         >
-                          {slotId ? (
+                          {isAvailable ? (
                             <div
                               className={`
                                 w-full h-full flex flex-col items-start justify-start p-2
@@ -295,7 +296,8 @@ export default function CourseScheduler() {
                 {eveningRows.map((row, rowIndex) => (
                   <tr key={`evening-${rowIndex}`}>
                     {row.slots.map((slotId, dayIndex) => {
-                      const isSelected = slotId && selectedSlots.has(slotId);
+                      const isAvailable = slotId && (!slotIds || slotIds.includes(slotId));
+                      const isSelected = isAvailable && selectedSlots.has(slotId);
 
                       return (
                         <td
@@ -303,7 +305,7 @@ export default function CourseScheduler() {
                           className="border-2 border-black p-0"
                           style={{ height: "80px" }}
                         >
-                          {slotId ? (
+                          {isAvailable ? (
                             <div
                               className={`
                                 w-full h-full flex flex-col items-start justify-start p-2
@@ -321,9 +323,7 @@ export default function CourseScheduler() {
                               onMouseEnter={() => handleMouseEnter(slotId)}
                             >
                               <span className="text-lg font-bold">
-                                {typeof slotId === "string"
-                                  ? slotId.split("-")[0]
-                                  : slotId}
+                                {slotId > 100 ? Math.floor(slotId / 10) : slotId}
                               </span>
                               <span className="text-xs mt-1">{row.label}</span>
                             </div>
