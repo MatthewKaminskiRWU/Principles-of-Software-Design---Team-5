@@ -318,10 +318,6 @@ def get_results(hash: str, session: SessionDep):
     results = []  # blank array to store the results
     for slotId in slotIds:  # this gets the time slot details
         timeSlot = session.get(TimeSlots, slotId)
-        availabilityRows = session.exec(
-            select(Availability).where(Availability.slotId == slotId)
-        ).all()
-
         # decided to opt for using the func method from sqlalchemy which allows us to call SQL functions.
         #     calling func.count() is the equivalant to doing an actual query:
         #     SELECT COUNT(*) FROM availability WHERE slotId = 1 AND status = 'available'

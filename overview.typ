@@ -47,8 +47,7 @@
 
   
   // Paragraph spacing
-  set par(justify: true, leading: 0.65em)
-  show par: set block(spacing: 1.2em)
+  set par(justify: true, leading: 0.65em,spacing: 1.2em)
 
   // Figure spacing
   show figure: set block(spacing: .8em)
@@ -187,7 +186,7 @@ pip --version
 Now we need to install the packages that we are using in our project.
 
 ```bash
-pip install pymysql fastapi[standard] "uvicorn[standard] sqlmodel python-dotenv"
+pip install pymysql fastapi[standard] uvicorn[standard] sqlmodel python-dotenv
 ```
 It is important to note that there might be additional packages that need installing depending on what features get added and how the project progresses.
 
