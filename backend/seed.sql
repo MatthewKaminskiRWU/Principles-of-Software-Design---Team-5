@@ -51,13 +51,41 @@ CREATE TABLE availability (
 -- Dummy Data Insertion
 -- ==========================================
 
--- 1. Create a Master List of Time Slots
+-- 1. Create a Master List of Time Slots 
+-- Note: Many slots represent multiple days (e.g. MWF), 
+-- but we store the primary day here for DB consistency.
 INSERT INTO timeSlots (id, dayOfWeek, startTime, endTime, slotType) VALUES
-(1, 'Monday', '09:00:00', '09:50:00', '50_min'),
-(7, 'Tuesday', '10:00:00', '11:20:00', '80_min'),
-(25, 'Wednesday', '18:00:00', '20:50:00', '170_min');
+-- MWF 50 min slots
+(1, 'Monday', '08:00:00', '08:50:00', '50_min'),
+(2, 'Monday', '09:00:00', '09:50:00', '50_min'),
+(3, 'Monday', '10:00:00', '10:50:00', '50_min'),
+(4, 'Monday', '11:00:00', '11:50:00', '50_min'),
+(5, 'Monday', '12:00:00', '12:50:00', '50_min'),
+(6, 'Monday', '13:00:00', '13:50:00', '50_min'),
+-- MWTh 80 min slots
+(7, 'Monday', '14:00:00', '15:20:00', '80_min'),
+(8, 'Monday', '15:30:00', '16:50:00', '80_min'),
+(9, 'Monday', '17:00:00', '18:20:00', '80_min'),
+-- TTh 80 min slots
+(21, 'Tuesday', '08:00:00', '09:20:00', '80_min'),
+(22, 'Tuesday', '09:30:00', '10:50:00', '80_min'),
+(23, 'Tuesday', '11:00:00', '12:20:00', '80_min'),
+(24, 'Tuesday', '12:30:00', '13:50:00', '80_min'),
+-- TF 80 min slots
+(25, 'Tuesday', '14:00:00', '15:20:00', '80_min'),
+(26, 'Tuesday', '15:30:00', '16:50:00', '80_min'),
+(27, 'Tuesday', '17:00:00', '18:20:00', '80_min'),
+-- Evening courses (170 min)
+(12, 'Monday', '18:30:00', '21:30:00', '170_min'),
+(120, 'Monday', '18:30:00', '21:30:00', '170_min'),
+(13, 'Tuesday', '18:30:00', '21:30:00', '170_min'),
+(130, 'Tuesday', '18:30:00', '21:30:00', '170_min'),
+(14, 'Wednesday', '18:30:00', '21:30:00', '170_min'),
+(140, 'Wednesday', '18:30:00', '21:30:00', '170_min'),
+(15, 'Thursday', '18:30:00', '21:30:00', '170_min'),
+(150, 'Thursday', '18:30:00', '21:30:00', '170_min');
 
--- 2. Create a Professor's Event (rn its hardcoded to match the'abc123xyz' hash from JSON)
+-- 2. Create a Professor's Event (initial dummy event)
 INSERT INTO events (id, hash, classTitle, professor) VALUES
 (1, 'abc123xyz', 'SEC220: Intro to Databases', 'Dr. White');
 

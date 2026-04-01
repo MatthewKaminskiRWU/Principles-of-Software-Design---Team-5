@@ -324,22 +324,30 @@ def get_results(hash: str, session: SessionDep):
 
         # get available
         available = session.exec(
-            select(func.count()).where(
+            select(func.count(Availability.userId))
+            .join(User)
+            .where(
+                User.eventId == event.id,
                 Availability.slotId == slotId,
                 Availability.status == AvailabilityStatus.available,
             )
         ).one()
         # get preferred
         preferred = session.exec(
-            select(func.count()).where(
+            select(func.count(Availability.userId))
+            .join(User)
+            .where(
+                User.eventId == event.id,
                 Availability.slotId == slotId,
                 Availability.status == AvailabilityStatus.preferred,
             )
         ).one()
-        # get unavailable (im not even sure right now our frontend produces any unavailable, and im not sure that it should.
-        # nonetheless this could prove important???)
+        # get unavailable
         unavailable = session.exec(
-            select(func.count()).where(
+            select(func.count(Availability.userId))
+            .join(User)
+            .where(
+                User.eventId == event.id,
                 Availability.slotId == slotId,
                 Availability.status == AvailabilityStatus.unavailable,
             )

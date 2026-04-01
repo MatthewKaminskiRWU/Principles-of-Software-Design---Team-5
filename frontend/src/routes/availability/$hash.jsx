@@ -1,5 +1,5 @@
-import { createFileRoute, useParams } from '@tanstack/react-router'
-import CourseScheduler from '../../components/scheduler'
+import { createFileRoute } from '@tanstack/react-router'
+import StudentScheduler from '../../components/studentScheduler'
 
 export const Route = createFileRoute('/availability/$hash')({
     loader: async ({ params }) => {
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/availability/$hash')({
             <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
                 <div className="text-red-600 mb-4">
                     <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="Refactor: 12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Event Not Found</h2>
@@ -32,10 +32,14 @@ export const Route = createFileRoute('/availability/$hash')({
     ),
     component: RouteComponent,
 })
-// we are passing in params as a prop and using it to fetch the specific class availability
 
 function RouteComponent() {
     const {hash} = Route.useParams({ from: '/availability/$hash'})
     const event = Route.useLoaderData()
-    return <CourseScheduler hash={hash} slotIds={event.slotIds} /> 
+    return <StudentScheduler 
+        hash={hash} 
+        slotIds={event.slotIds} 
+        classTitle={event.classTitle} 
+        professor={event.professor} 
+    /> 
 }
