@@ -46,6 +46,7 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
   ]
 
   const dayLabels = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]
+  const dayAbbr = ["MON", "TUE", "WED", "THU", "FRI"]
 
   const getSlotTime = (slotId) => slotDefinitions[slotId]?.time || ""
 
@@ -69,43 +70,74 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
     const result = slotResults.find(r => r.slotId === slotId)
     if (!result) return null
     return (
-      <div className="mt-auto text-xs font-semibold">
+      <div className="text-xs font-semibold mt-1">
         {result.available + result.preferred} Students
       </div>
     )
   }
 
-  const renderSlot = (slotId, isAvailable, isSelected, timeLabel, labelOverride = null) => {
+  const renderSlot = (slotId, isAvailable, isSelected, timeLabel, labelOverride = null, dayIndex) => {
     const resultStyle = slotResults ? getResultStyle(slotId) : ""
     const studentCount = getStudentCount(slotId)
     const displayId = labelOverride || (slotId > 100 ? Math.floor(slotId / 10) : slotId)
+
+    // Handle evening label display like old.jsx
+    let displayTime = timeLabel
+    let campusLabel = null
+    if (timeLabel.includes("-BRI") || timeLabel.includes("-BR1")) {
+      displayTime = "6:30-9:30"
+      campusLabel = "BRI"
+    } else if (timeLabel.includes("-PVD")) {
+      displayTime = "6:30-9:30"
+      campusLabel = "PVD"
+    }
 
     return (
       <div
         className={`w-full h-full flex flex-col items-start justify-start p-2 transition-colors ${
           slotResults ? "" : "cursor-pointer"
         } ${
-          slotResults ? resultStyle : (isSelected ? "bg-orange-300 text-white" : "bg-white hover:bg-gray-300")
+          slotResults 
+            ? resultStyle 
+            : (isSelected 
+                ? "bg-primary-container text-white active-bevel" 
+                : "bg-white hover:bg-surface-dim")
         } ${!isAvailable ? "opacity-30 grayscale pointer-events-none" : ""}`}
         onMouseDown={slotResults ? null : (e) => { e.preventDefault(); onMouseDown(slotId) }}
         onMouseEnter={slotResults ? null : () => onMouseEnter(slotId)}
       >
-        <span className="text-lg font-bold">{displayId}</span>
-        <span className="text-xs mt-1">{timeLabel}</span>
+        <span className={`text-[10px] font-bold ${isSelected ? "text-white" : "text-gray-800"}`}>
+          {dayAbbr[dayIndex]} {displayTime}
+        </span>
+        {campusLabel && (
+          <span className={`text-[10px] font-semibold ${isSelected ? "text-blue-100" : "text-gray-500"}`}>
+            {campusLabel}
+          </span>
+        )}
         {studentCount}
+        <span className={`text-[10px] mt-auto font-bold ${isSelected ? "text-blue-200" : "text-gray-400 opacity-50"}`}>
+          #{displayId}
+        </span>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden select-none">
+    <section className="bg-surface-container-high outset-bevel overflow-hidden select-none">
+      <div className="bg-tertiary-fixed-dim p-2 border-b-2 border-outline flex justify-between items-center">
+        <span className="text-tertiary font-bold uppercase text-sm">Weekly Schedule Grid</span>
+        <div className="flex space-x-1">
+          <div className="w-3 h-3 bg-white border border-black"></div>
+          <div className="w-3 h-3 bg-outline border border-black"></div>
+        </div>
+      </div>
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse text-xs border-2 border-black">
           <thead>
-            <tr>
+            <tr className="bg-tertiary-fixed-dim">
               {dayLabels.map((day) => (
-                <th key={day} className="border-2 border-black bg-white px-4 py-3 text-center font-bold text-sm">
-                  {day}
+                <th key={day} className="border border-black p-2 text-center font-bold uppercase">
+                  {day.slice(0, 3)}
                 </th>
               ))}
             </tr>
@@ -119,8 +151,8 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
                   const timeLabel = slotId ? getSlotTime(slotId) : ""
 
                   return (
-                    <td key={dayIndex} className="border-2 border-black p-0 relative" style={{ height: "80px" }}>
-                      {slotId ? renderSlot(slotId, isAvailable, isSelected, timeLabel) : <div className="w-full h-full bg-white"></div>}
+                    <td key={dayIndex} className="border border-black p-0 relative" style={{ height: "80px", width: "20%" }}>
+                      {slotId ? renderSlot(slotId, isAvailable, isSelected, timeLabel, null, dayIndex) : <div className="w-full h-full bg-surface-dim opacity-20"></div>}
                     </td>
                   )
                 })}
@@ -128,8 +160,8 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
             ))}
 
             <tr>
-              <td colSpan="5" className="border-2 border-black bg-gray-300 px-4 py-2 text-center font-bold">
-                EVENING COURSES
+              <td colSpan="5" className="border border-black bg-surface-variant px-4 py-2 text-center font-black uppercase tracking-widest opacity-80">
+                Evening Session
               </td>
             </tr>
 
@@ -140,8 +172,8 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
                   const isSelected = isAvailable && selectedSlots.has(slotId)
 
                   return (
-                    <td key={dayIndex} className="border-2 border-black p-0" style={{ height: "80px" }}>
-                      {slotId ? renderSlot(slotId, isAvailable, isSelected, row.label, slotId > 100 ? Math.floor(slotId / 10) : slotId) : <div className="w-full h-full bg-white"></div>}
+                    <td key={dayIndex} className="border border-black p-0" style={{ height: "80px" }}>
+                      {slotId ? renderSlot(slotId, isAvailable, isSelected, row.label, (slotId > 100 ? Math.floor(slotId / 10) : slotId), dayIndex) : <div className="w-full h-full bg-surface-dim opacity-20"></div>}
                     </td>
                   )
                 })}
@@ -150,6 +182,7 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   )
+  
 }

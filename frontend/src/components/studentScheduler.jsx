@@ -46,8 +46,6 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
     submittedAt: new Date().toISOString(),
   })
 
-  const generateJSON = () => JSON.stringify(getSubmissionData(), null, 2)
-
   const handleSubmit = async () => {
     if (!userName || !userEmail) { alert("Please enter your name and email before submitting."); return }
     try {
@@ -68,40 +66,55 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
   const clearAll = () => setSelectedSlots(new Set())
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-surface-dim p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex justify-between items-start mb-4">
+        <div className="bg-surface-container-high outset-bevel p-6 mb-8">
+          <div className="flex justify-between items-start mb-6 border-b-2 border-primary-container pb-2">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">{classTitle || "COURSE SCHEDULING"}</h1>
-              {professor && <p className="text-gray-600">Professor: {professor}</p>}
+              <h1 className="text-2xl font-bold text-primary-container uppercase tracking-tight">{classTitle || "COURSE SCHEDULING"}</h1>
+              {professor && <p className="text-sm font-bold opacity-70">Professor: {professor}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="flex flex-col">
+              <label className="text-xs font-bold text-primary-container mb-1 uppercase">Name</label>
+              <input 
+                type="text" 
+                value={userName} 
+                onChange={(e) => setUserName(e.target.value)}
                 placeholder="Student Name"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                className="inset-bevel bg-white px-3 py-2 text-sm focus:outline-none rounded-none" 
+              />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input type="email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)}
+            <div className="flex flex-col">
+              <label className="text-xs font-bold text-primary-container mb-1 uppercase">Email</label>
+              <input 
+                type="email" 
+                value={userEmail} 
+                onChange={(e) => setUserEmail(e.target.value)}
                 placeholder="fllllxxx@g.rwu.edu"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                className="inset-bevel bg-white px-3 py-2 text-sm focus:outline-none rounded-none" 
+              />
             </div>
           </div>
-          <div className="flex gap-3 items-center">
-            <button onClick={handleSubmit} disabled={selectedSlots.size === 0}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+
+          <div className="flex gap-4">
+            <button 
+              onClick={handleSubmit} 
+              disabled={selectedSlots.size === 0}
+              className="px-6 py-2 bg-primary-container text-secondary-container font-bold uppercase outset-bevel active:active-bevel hover:brightness-110 disabled:opacity-50"
+            >
               Submit
             </button>
-            <button onClick={clearAll}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+            <button 
+              onClick={clearAll}
+              className="px-6 py-2 bg-surface-variant text-primary-container font-bold uppercase outset-bevel active:active-bevel"
+            >
               Clear All
             </button>
-            <div className="ml-auto text-sm text-gray-600">
-              Selected: <span className="font-bold text-blue-600">{selectedSlots.size}</span> slots
+            <div className="ml-auto text-xs font-bold text-primary-container flex items-center bg-white px-3 inset-bevel">
+              SELECTED: {selectedSlots.size}
             </div>
           </div>
         </div>
@@ -112,13 +125,6 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
           onMouseDown={handleMouseDown}
           onMouseEnter={handleMouseEnter}
         />
-
-        {selectedSlots.size > 0 && (
-          <div className="mt-6 bg-gray-900 rounded-lg p-4">
-            <h3 className="text-green-400 font-semibold mb-2">JSON Preview:</h3>
-            <pre className="text-green-400 text-xs overflow-auto max-h-96">{generateJSON()}</pre>
-          </div>
-        )}
       </div>
     </div>
   )
