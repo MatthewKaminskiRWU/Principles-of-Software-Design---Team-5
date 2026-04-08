@@ -118,9 +118,25 @@ export default function TeacherScheduler() {
               <p className="text-xs font-bold text-green-800 uppercase mb-1">
                 Event Created! Share Link:
               </p>
-              <p className="text-blue-700 font-mono text-sm break-all font-bold">
+              <a 
+                href={`${window.location.origin}/availability/${generatedHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 hover:underline font-mono text-sm break-all font-bold block"
+              >
                 {window.location.origin}/availability/{generatedHash}
+              </a>
+              <p className="text-xs font-bold text-green-800 uppercase mt-4 mb-1">
+                Results Link (Bookmark this!):
               </p>
+              <a 
+                href={`${window.location.origin}/results/${generatedHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 hover:underline font-mono text-sm break-all font-bold block"
+              >
+                {window.location.origin}/results/{generatedHash}
+              </a>
             </div>
           )}
 

@@ -43,18 +43,34 @@ function ResultsPage() {
   if (error) return <div className="p-8 text-center text-red-600">Error: {error}</div>
   if (!event) return <div className="p-8 text-center">Event not found</div>
 
-  // Find the slot with the most "available + preferred" students
+  // Find the slot with the most available students
   const maxAvailable = results.reduce((max, slot) => {
     const total = slot.available + slot.preferred
     return total > max ? total : max
   }, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-surface-dim p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">{event.classTitle}</h1>
-          <p className="text-gray-600 mb-4">Professor: {event.professor}</p>
+        <div className="bg-surface-container-high outset-bevel p-6 mb-8">
+          <div className="flex justify-between items-start mb-6 border-b-2 border-primary-container pb-2">
+            <div>
+              <h1 className="text-2xl font-bold text-primary-container uppercase tracking-tight">
+                {event.classTitle}
+              </h1>
+              <p className="text-sm font-bold opacity-70 uppercase font-mono">
+                Professor: {event.professor}
+              </p>
+            </div>
+            <div className="text-right border-l border-primary-container/20 pl-4">
+              <p className="text-xs font-bold text-primary-container uppercase tracking-wider animate-[pulse_3s_ease-in-out_infinite]">
+                [ BOOKMARK THIS PAGE ]
+              </p>
+              <p className="text-[10px] text-primary-container font-mono uppercase opacity-80 mt-1">
+                Save this URL to check for updates
+              </p>
+            </div>
+          </div>
           
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">

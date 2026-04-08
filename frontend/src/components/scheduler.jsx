@@ -115,7 +115,7 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
           </span>
         )}
         {studentCount}
-        <span className={`text-[10px] mt-auto font-bold ${isSelected ? "text-blue-200" : "text-gray-400 opacity-50"}`}>
+        <span className={`text-[10px] mt-auto font-bold ${isSelected ? "text-blue-200" : "text-primary-container/60"}`}>
           #{displayId}
         </span>
       </div>
