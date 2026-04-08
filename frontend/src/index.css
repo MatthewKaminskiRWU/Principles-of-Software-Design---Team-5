@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+@theme {
+  --color-surface-container-high: #ede7e0;
+  --color-secondary-container: #feb71a;
+  --color-surface-dim: #ded9d2;
+  --color-background: #fef9f1;
+  --color-surface-variant: #e7e2db;
+  --color-primary-container: #003865;
+  --color-surface: #fef9f1;
+}
+
+@utility outset-bevel {
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #001a30;
+  border-right: 2px solid #001a30;
+}
+
+@utility inset-bevel {
+  border-top: 2px solid #737780;
+  border-left: 2px solid #737780;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+}
+
+@utility active-bevel {
+  border-top: 2px solid #001a30;
+  border-left: 2px solid #001a30;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+}
+
+@utility table-cell-border {
+  border: 1px solid #737780;
+}
