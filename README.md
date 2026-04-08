@@ -5,7 +5,7 @@
     - make sure course blocks are how we want them
     - add additional class times if needed
     - sort out the numbering
-- [ ] Use Fetch to point to the backend URL
+- [X] Use Fetch to point to the backend URL
     - (this will have to be done after the backend is complete)
     
 **Backend**
