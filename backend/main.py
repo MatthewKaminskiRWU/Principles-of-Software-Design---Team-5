@@ -150,9 +150,9 @@ class DaysOfWeek(str, Enum):
 
 
 class SlotTypes(str, Enum):
-    min_50 = "min_50"
-    min_80 = "min_80"
-    min_170 = "min_170"
+    min_50 = "50_min"
+    min_80 = "80_min"
+    min_170 = "170_min"
 
 
 class TimeSlots(SQLModel, table=True):

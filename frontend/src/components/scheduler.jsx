@@ -1,48 +1,78 @@
 export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, onMouseEnter, slotResults, maxAvailable }) {
   const slotDefinitions = {
-    1: { time: "8:00-8:50", days: ["monday", "wednesday", "friday"] },
-    2: { time: "9:00-9:50", days: ["monday", "wednesday", "friday"] },
-    3: { time: "10:00-10:50", days: ["monday", "wednesday", "friday"] },
-    4: { time: "11:00-11:50", days: ["monday", "wednesday", "friday"] },
-    5: { time: "12:00-12:50", days: ["monday", "wednesday", "friday"] },
-    6: { time: "1:00-1:50", days: ["monday", "wednesday", "friday"] },
-    7: { time: "2:00-3:20", days: ["monday", "wednesday", "thursday"] },
-    8: { time: "3:30-4:50", days: ["monday", "wednesday", "thursday"] },
-    9: { time: "5:00-6:20", days: ["monday", "wednesday", "thursday"] },
-    21: { time: "8:00-9:20", days: ["tuesday", "thursday"] },
-    22: { time: "9:30-10:50", days: ["tuesday", "thursday"] },
-    23: { time: "11:00-12:20", days: ["tuesday", "thursday"] },
-    24: { time: "12:30-1:50", days: ["tuesday", "thursday"] },
-    25: { time: "2:00-3:20", days: ["tuesday", "friday"] },
-    26: { time: "3:30-4:50", days: ["tuesday", "friday"] },
-    27: { time: "5:00-6:20", days: ["tuesday", "friday"] },
-    12: { time: "6:30-9:30-BR1", days: ["monday"], evening: true },
-    120: { time: "6:30-9:30-PVD", days: ["monday"], evening: true },
-    13: { time: "6:30-9:30-BR1", days: ["tuesday"], evening: true },
-    130: { time: "6:30-9:30-PVD", days: ["tuesday"], evening: true },
-    14: { time: "6:30-9:30-BR1", days: ["wednesday"], evening: true },
-    140: { time: "6:30-9:30-PVD", days: ["wednesday"], evening: true },
-    15: { time: "6:30-9:30-BR1", days: ["thursday"], evening: true },
-    150: { time: "6:30-9:30-PVD", days: ["thursday"], evening: true },
+    1: { time: "8:00-8:50", days: ["monday"] },
+    2: { time: "8:00-8:50", days: ["wednesday"] },
+    3: { time: "8:00-8:50", days: ["friday"] },
+    4: { time: "9:00-9:50", days: ["monday"] },
+    5: { time: "9:00-9:50", days: ["wednesday"] },
+    6: { time: "9:00-9:50", days: ["friday"] },
+    7: { time: "10:00-10:50", days: ["monday"] },
+    8: { time: "10:00-10:50", days: ["wednesday"] },
+    9: { time: "10:00-10:50", days: ["friday"] },
+    10: { time: "11:00-11:50", days: ["monday"] },
+    11: { time: "11:00-11:50", days: ["wednesday"] },
+    12: { time: "11:00-11:50", days: ["friday"] },
+    13: { time: "12:00-12:50", days: ["monday"] },
+    14: { time: "12:00-12:50", days: ["wednesday"] },
+    15: { time: "12:00-12:50", days: ["friday"] },
+    16: { time: "1:00-1:50", days: ["monday"] },
+    17: { time: "1:00-1:50", days: ["wednesday"] },
+    18: { time: "1:00-1:50", days: ["friday"] },
+
+    21: { time: "8:00-9:20", days: ["tuesday"] },
+    22: { time: "8:00-9:20", days: ["thursday"] },
+    23: { time: "9:30-10:50", days: ["tuesday"] },
+    24: { time: "9:30-10:50", days: ["thursday"] },
+    25: { time: "11:00-12:20", days: ["tuesday"] },
+    26: { time: "11:00-12:20", days: ["thursday"] },
+    27: { time: "12:30-1:50", days: ["tuesday"] },
+    28: { time: "12:30-1:50", days: ["thursday"] },
+
+    31: { time: "2:00-3:20", days: ["monday"] },
+    32: { time: "2:00-3:20", days: ["wednesday"] },
+    33: { time: "2:00-3:20", days: ["thursday"] },
+    34: { time: "3:30-4:50", days: ["monday"] },
+    35: { time: "3:30-4:50", days: ["wednesday"] },
+    36: { time: "3:30-4:50", days: ["thursday"] },
+    37: { time: "5:00-6:20", days: ["monday"] },
+    38: { time: "5:00-6:20", days: ["wednesday"] },
+    39: { time: "5:00-6:20", days: ["thursday"] },
+
+    41: { time: "2:00-3:20", days: ["tuesday"] },
+    42: { time: "2:00-3:20", days: ["friday"] },
+    43: { time: "3:30-4:50", days: ["tuesday"] },
+    44: { time: "3:30-4:50", days: ["friday"] },
+    45: { time: "5:00-6:20", days: ["tuesday"] },
+    46: { time: "5:00-6:20", days: ["friday"] },
+
+    51: { time: "6:30-9:30-BR1", days: ["monday"], evening: true },
+    52: { time: "6:30-9:30-BR1", days: ["tuesday"], evening: true },
+    53: { time: "6:30-9:30-BR1", days: ["wednesday"], evening: true },
+    54: { time: "6:30-9:30-BR1", days: ["thursday"], evening: true },
+
+    61: { time: "6:30-9:30-PVD", days: ["monday"], evening: true },
+    62: { time: "6:30-9:30-PVD", days: ["tuesday"], evening: true },
+    63: { time: "6:30-9:30-PVD", days: ["wednesday"], evening: true },
+    64: { time: "6:30-9:30-PVD", days: ["thursday"], evening: true },
   }
 
   const gridRows = [
-    { slots: [1, 21, 1, 21, 1] },
-    { slots: [2, null, 2, null, 2] },
-    { slots: [null, 22, null, 22, null] },
-    { slots: [3, null, 3, null, 3] },
-    { slots: [4, 23, 4, 23, 4] },
-    { slots: [5, null, 5, null, 5] },
-    { slots: [null, 24, null, 24, null] },
-    { slots: [6, null, 6, null, 6] },
-    { slots: [7, 25, 7, 7, 25] },
-    { slots: [8, 26, 8, 8, 26] },
-    { slots: [9, 27, 9, 9, 27] },
+    { slots: [1, 21, 2, 22, 3] },
+    { slots: [4, null, 5, null, 6] },
+    { slots: [null, 23, null, 24, null] },
+    { slots: [7, null, 8, null, 9] },
+    { slots: [10, 25, 11, 26, 12] },
+    { slots: [13, null, 14, null, 15] },
+    { slots: [null, 27, null, 28, null] },
+    { slots: [16, null, 17, null, 18] },
+    { slots: [31, 41, 32, 33, 42] },
+    { slots: [34, 43, 35, 36, 44] },
+    { slots: [37, 45, 38, 39, 46] },
   ]
 
   const eveningRows = [
-    { label: "6:30-9:30-BRI", slots: [12, 13, 14, 15, null] },
-    { label: "6:30-9:30-PVD", slots: [120, 130, 140, 150, null] },
+    { label: "6:30-9:30-BRI", slots: [51, 52, 53, 54, null] },
+    { label: "6:30-9:30-PVD", slots: [61, 62, 63, 64, null] },
   ]
 
   const dayLabels = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]
@@ -132,7 +162,7 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-xs border-2 border-black">
+        <table className="w-full border-collapse text-xs border-2 border-black min-w-[800px]">
           <thead>
             <tr className="bg-tertiary-fixed-dim">
               {dayLabels.map((day) => (
@@ -160,7 +190,7 @@ export default function CourseScheduler({ slotIds, selectedSlots, onMouseDown, o
             ))}
 
             <tr>
-              <td colSpan="5" className="border border-black bg-surface-variant px-4 py-2 text-center font-black uppercase tracking-widest opacity-80">
+              <td colSpan="5" className="border border-black bg-surface-variant px-4 py-2 text-center font-black uppercase tracking-wide opacity-80">
                 Evening Session
               </td>
             </tr>

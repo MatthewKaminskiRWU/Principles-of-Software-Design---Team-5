@@ -82,15 +82,15 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
     return (
       <div className="min-h-screen bg-surface-dim p-4 md:p-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-surface-container-high outset-bevel p-12 text-center">
-            <h1 className="text-2xl font-black text-primary-container uppercase tracking-tight mb-4">
+          <div className="bg-surface-container-high outset-bevel p-8 md:p-12 text-center">
+            <h1 className="text-xl md:text-2xl font-black text-primary-container uppercase tracking-tight mb-4">
               [ SUBMISSION COMPLETE ]
             </h1>
-            <p className="text-primary-container font-mono text-sm uppercase opacity-80 mb-8">
+            <p className="text-primary-container font-mono text-xs md:text-sm uppercase opacity-80 mb-8">
               Your availability for {classTitle || "this course"} has been recorded.
             </p>
-            <div className="inset-bevel bg-surface-variant p-6 mb-8">
-              <p className="text-primary-container font-mono text-xs uppercase">
+            <div className="inset-bevel bg-surface-variant p-4 md:p-6 mb-8">
+              <p className="text-primary-container font-mono text-[10px] md:text-xs uppercase">
                 Thank you for your response. The professor will use this data to finalize the schedule.
               </p>
             </div>
@@ -107,9 +107,9 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
     <div className="min-h-screen bg-surface-dim p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="bg-surface-container-high outset-bevel p-6 mb-8">
-          <div className="flex justify-between items-start mb-6 border-b-2 border-primary-container pb-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start mb-6 border-b-2 border-primary-container pb-2 gap-2">
             <div>
-              <h1 className="text-2xl font-bold text-primary-container uppercase tracking-tight">{classTitle || "COURSE SCHEDULING"}</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-primary-container uppercase tracking-tight">{classTitle || "COURSE SCHEDULING"}</h1>
               {professor && <p className="text-sm font-bold opacity-70">Professor: {professor}</p>}
             </div>
           </div>
@@ -137,7 +137,7 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <button 
               onClick={handleSubmit} 
               disabled={selectedSlots.size === 0}
@@ -151,7 +151,7 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
             >
               Clear All
             </button>
-            <div className="ml-auto text-xs font-bold text-primary-container flex items-center bg-white px-3 inset-bevel">
+            <div className="sm:ml-auto text-xs font-bold text-primary-container flex items-center bg-white px-3 inset-bevel h-10">
               SELECTED: {selectedSlots.size}
             </div>
           </div>

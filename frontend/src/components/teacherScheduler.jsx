@@ -140,7 +140,7 @@ export default function TeacherScheduler() {
             </div>
           )}
 
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <button
               onClick={handleSubmit}
               disabled={selectedSlots.size === 0}
