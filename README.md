@@ -10,7 +10,7 @@ You can spin up the entire project (Database, Backend, and Frontend) using Docke
 ### Steps
 1. **Clone the repository** (if you haven't already):
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/MatthewKaminskiRWU/Principles-of-Software-Design---Team-5
    cd Principles-of-Software-Design---Team-5
    ```
 
@@ -20,14 +20,15 @@ You can spin up the entire project (Database, Backend, and Frontend) using Docke
    ```
 
 3. **Access the application**:
+   - First find the IP of your network.
    - **Main Application**: `http://<YOUR-IP>:3000` (e.g., `http://10.50.1.20:3000`)
    - **Backend API**: `http://<YOUR-IP>:3000/api/` (Proxied internally)
 
-By using the Docker setup, the application is automatically configured to work on your school's WAN. You don't need to hardcode any IP addresses; simply share your computer's IP address with students and teachers, and they can access the scheduler on port 3000.
+By using the Docker setup, the application is automatically configured to work on the school's WAN. There is no need to hardcode IP addresses; simply share your computer's IP address with students and teachers, and they can access the scheduler on port 3000.
 
 ## Todo
 **Frontend**
-- [ ] Finalize UI for course blocks
+- [X] Finalize UI for course blocks
     - make sure course blocks are how we want them
     - add additional class times if needed
     - sort out the numbering
