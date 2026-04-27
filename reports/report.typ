@@ -1,3 +1,4 @@
+#import "@preview/treet:1.0.0": *
 #let assignment(
   title: "",
   course: "",
@@ -162,16 +163,17 @@ The majority of the testing was conducted manually by visiting the application�
 For the backend, the FastAPI live documentation allowed us to test the GET and POST endpoints directly. Any automated unit testing was determined to be outside the scope of this project.
 
 = Deployment
-The system is designed for deployment either within the Roger Williams University LAN, or on a cloud platform. During demonstrations, the entire application was run on a laptop running a lightweight Linux operating system and connected to the University’s wireless network. 
+The system is designed for deployment either within a school's LAN, or on a cloud platform. During demonstrations, the entire application was run on a laptop running a lightweight Linux operating system and connected to the University’s wireless network. 
+
+A docker compose file has been created that will allow for simple deployment. Please see @deploy for a detailed explanation. 
 
 = Summation and Conclusions
 The team was able to successfully meet all core requirements such as class creations, availability submissions, and interest tracking. 
 Key challenges that required overcoming were lack of knowledge on the technologies used, user interface clutter, and bridging the gap between frontend and backend data. 
-Further improvements that can be worked on include allowing the option for selecting individual time slots as opposed to the typical M/W/F or T/Th. The ability for a professor to view which students are available on a given time slot is also a potential further implementation. 
 
 
 = Acknowledgements
-The team behind the project wants to give a thank you to all their peers for help giving feedback throughout the semester. Special thanks to Dr. Ruocco for giving feedback and helping us outline requirements. 
+The team behind the project wants to give a thank you to all their peers for help giving feedback throughout the semester. Special thanks to Dr. Ruocco for guiding us and helping outline requirements. 
 
 
 = References
@@ -232,6 +234,41 @@ The team behind the project wants to give a thank you to all their peers for hel
 
 #figure(image("assets/student.png"), caption: [Student Class Selection View])
 
+=== Development Guide
+For work on developing the project please view the `overview.pdf` file for instructions.  
+
+=== Deployment Guide <deploy>
+The application is made up of three main parts, a MariaDB database, a FastAPI backend, and the React frontend. Using Docker Compose allows users to run a single command on any device with Docker installed, and get the app running. By running this command, all three parts will be built and started in proper order, and the database will be seeded automatically. 
+
+Project Structure:
+
+#tree-list[
+  - Principles-of-Software-Design---Team-5/
+    - docker-compose.yml #text()[-- Orchestrates all 3 services]
+    - backend/
+      - Dockerfile #text()[-- Builds the Python/FastAPI image]
+      - requirements.txt #text()[-- Lists Python dependencies]
+      - seed.sql #text()[-- Schema + dummy data, auto-run on DB init]
+      - main.py #text()[-- FastAPI application code]
+    - frontend/
+      - Dockerfile #text()[-- Build from Node to nginx]
+      - nginx.conf #text()[-- Serves static files + proxies /api/ to backend]
+]
+==== Services
+The `docker-compose.yml` file has three defined services: `db`, `backend`, and `frontend`.
+
+- The `db` service runs the `mariadb:lts` image and then ininitializes the schedulerDB database via the seed.sql script. It uses a named volume for persistant storage (meaning no data loss on container reboot), and uses a built in MariaDB healthcheck to insure the database is ready before the backend tries to connect.
+
+- The `backend` service gets built from `./backend/Dockerfile`, and connects to the database via a `DATABASE_URL` environment variable. It starts after the healthcheck and runs on port 8000, yet routes traffic internall through the Nginx proxy.
+
+- The `frontend` service gets built from `./frontend/Dockerfile`, and acts as the entry to our app. It runs on port 3000 and serves both the UI and the API, meaning it depends on the backend and maps external traffic to the internal container we have running on port 80.
+==== Dockerfiles & Internals
+- The `backend/Dockerfile` and `requirements.txt` use a slim python image to save storage. They install the dependencies listed in `requirements.txt` before copying the rest of the source code. Docker caches everything so dependencies won't need reinstallation after every build. The app is then started and bound to 0.0.0.0 so that it is reachable from outside the container. 
+- The `frontend/Dockerfile` uses a two-stage build to keep the image size down. Stage 1 uses the none:20-slim runtime and pnpm to compile the React app into a static /dist folder of HTML, CSS, and JavaScript files. Stage 2 involves discarding everything used in step 1 except the /dist folder and the `nginx.conf` file. As a result we get a very lightweight nginx image with no overhead from development tooling.  
+- The `frontend/nginx.conf` file helps us configure Nginx as a reverse proxy and static host through a single port. This was done in hopes of preventing those tricky CORS issues. Both the frontend web page and the API will act as coming from the same origin.
+
+==== Prerequisites & Runing the Application
+Please refer to the README on the GitHub repository for detailed steps.
 
 == Source Code
 Source code is available via #link("https://github.com/MatthewKaminskiRWU/Principles-of-Software-Design---Team-5/tree/main")[this GitHub repository.]
