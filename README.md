@@ -13,6 +13,7 @@ You can spin up the entire project (Database, Backend, and Frontend) using Docke
    git clone https://github.com/MatthewKaminskiRWU/Principles-of-Software-Design---Team-5
    cd Principles-of-Software-Design---Team-5
    ```
+If deploying to a public server, change MARIADB_ROOT_PASSWORD and MARIADB_PASSWORD before running.
 
 2. **Run Docker Compose**:
    ```bash
