@@ -18,13 +18,13 @@ function ResultsPage() {
       try {
         setLoading(true)
         // Fetch event metadata
-        const eventRes = await fetch(`http://localhost:8000/events/${hash}`)
+        const eventRes = await fetch(`/api/events/${hash}`)
         if (!eventRes.ok) throw new Error("Failed to fetch event details")
         const eventData = await eventRes.json()
         setEvent(eventData)
 
         // Fetch availability results
-        const resultsRes = await fetch(`http://localhost:8000/events/${hash}/results`)
+        const resultsRes = await fetch(`/api/events/${hash}/results`)
         if (!resultsRes.ok) throw new Error("Failed to fetch results")
         const resultsData = await resultsRes.json()
         setResults(resultsData)

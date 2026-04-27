@@ -56,7 +56,7 @@ export default function StudentScheduler({ hash, slotIds, classTitle, professor 
   const handleSubmit = async () => {
     if (!userName || !userEmail) { alert("Please enter your name and email before submitting."); return }
     try {
-      const response = await fetch("http://localhost:8000/availability", {
+      const response = await fetch("/api/availability", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(getSubmissionData()),

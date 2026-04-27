@@ -58,7 +58,7 @@ export default function TeacherScheduler() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8000/events/", {
+      const response = await fetch("/api/events/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

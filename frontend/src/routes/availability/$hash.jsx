@@ -3,7 +3,7 @@ import StudentScheduler from '../../components/studentScheduler'
 
 export const Route = createFileRoute('/availability/$hash')({
     loader: async ({ params }) => {
-        const response = await fetch(`http://localhost:8000/events/${params.hash}`)
+        const response = await fetch(`/api/events/${params.hash}`)
         if (!response.ok) {
             throw new Error('Event not found')
         }

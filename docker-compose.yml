@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mariadb:lts
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: spark
+      MARIADB_DATABASE: schedulerDB
+      MARIADB_USER: devuser
+      MARIADB_PASSWORD: devpassword
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backend/seed.sql:/docker-entrypoint-initdb.d/1-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    restart: always
+    environment:
+      - DATABASE_URL=mysql+pymysql://devuser:devpassword@db:3306/schedulerDB
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mariadb_data:
