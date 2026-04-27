@@ -131,7 +131,7 @@ The backend is what handles RESTful APIs as well as some of the application logi
 
 For the database design we chose to use MariaDB since it is a relational database and would meet our requirements. In order to implement the database we leveraged the use of a docker-compose.yml document. This document allowed us to specify what our docker container would contain, such as MariaDB usernames, ports, and volumes.
 
-#figure(image("SystemArchitecture.svg"), caption: [Application Logic])
+#figure(image("assets/SystemArchitecture.svg"), caption: [Application Logic])
 
 == How the Website Works 
 
@@ -221,7 +221,8 @@ The team behind the project wants to give a thank you to all their peers for hel
 + *Save Links:* Bookmark the generated unique links provided on the confirmation screen.
 + *Review:* Navigate to the results page via your bookmarked link to view student availability.
 
-#figure(image("prof.png"))
+#figure(image("assets/prof.png"), caption: [Professor Class Creation View])
+#figure(image("assets/results.png"), caption: [Professor Availability View])
 
 === Student Guide
 + *Access:* Navigate to the specific link provided by your professor.
@@ -229,7 +230,7 @@ The team behind the project wants to give a thank you to all their peers for hel
 + *Selection:* Select the time slots during which you are available to attend class.
 + *Submission:* Click the "Submit" button to finalize your response.
 
-#figure(image("results.png"))
+#figure(image("assets/student.png"), caption: [Student Class Selection View])
 
 
 == Source Code
