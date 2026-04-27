@@ -30,8 +30,8 @@ By using the Docker setup, the application is automatically configured to work o
 ## Documentation
 We have compiled detailed reports that provide and overview of the project, as well as instructions for developers.
 
-- [Report](report.pdf) 
-- [Development Instructions](overview.pdf)
+- [Report](reports/report.pdf) 
+- [Development Instructions](reports/overview.pdf)
 
 <details>
   <summary>Database Schema</summary>
